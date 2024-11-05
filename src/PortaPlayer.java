@@ -11,52 +11,57 @@ public class PortaPlayer extends JFrame implements ActionListener {
     private final JButton playButton;
     private final JButton pauseButton;
     private final JButton stopButton;
-    private final JButton submitButton;
-    private final JTextField textField;
+    private final JButton fileButton;
+    private JLabel audioName = new JLabel("Audio name");
     private Clip clip;
 
     public PortaPlayer() {
-        // --------- Panel
-        JPanel footer = new JPanel();
-        footer.setPreferredSize(new Dimension(400, 100));
-        footer.setLayout(new GridLayout(1, 3, 10, 10));
-
         // --------- Frame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new FlowLayout());
+        setLayout(new BorderLayout());
         setSize(600, 400);
         setResizable(false);
         setLocationRelativeTo(null);
 
-        // --------- Text Field
-        textField = new JTextField();
-        textField.setPreferredSize(new Dimension(450, 40));
-        textField.setFont(new Font("Consolas", Font.PLAIN, 20));
+        // --------- Label
+        audioName.setBounds(20, 0, 20, 20);
+
+        // --------- Panel
+        JPanel footer = new JPanel();
+        footer.setPreferredSize(new Dimension(600, 100));
+        footer.setLayout(new GridLayout(1, 3, 10, 10));
+        footer.setBackground(Color.gray);
+
+        JPanel header = new JPanel();
+        header.setPreferredSize(new Dimension(600, 60));
+        header.setLayout(new GridLayout(1, 2, 10, 10));
+        header.setBackground(Color.lightGray);
 
         // --------- Buttons
         playButton = new JButton("Play");
-        playButton.setPreferredSize(new Dimension(100, 50));
+        playButton.setPreferredSize(new Dimension(50, 30));
         playButton.setFocusable(false);
         playButton.setEnabled(false);
         playButton.addActionListener(this);
         pauseButton = new JButton("Pause");
-        pauseButton.setPreferredSize(new Dimension(100, 50));
+        pauseButton.setPreferredSize(new Dimension(50, 30));
         pauseButton.setFocusable(false);
         pauseButton.setEnabled(false);
         pauseButton.addActionListener(this);
         stopButton = new JButton("Stop");
-        stopButton.setPreferredSize(new Dimension(100, 50));
+        stopButton.setPreferredSize(new Dimension(50, 30));
         stopButton.setFocusable(false);
         stopButton.setEnabled(false);
         stopButton.addActionListener(this);
-        submitButton = new JButton("Submit");
-        submitButton.setFocusable(false);
-        submitButton.addActionListener(this);
+        fileButton = new JButton("Choose file");
+        fileButton.setFocusable(false);
+        fileButton.addActionListener(this);
 
         // --------- Add
-        add(textField);
-        add(submitButton);
-        add(footer);
+        header.add(audioName);
+        header.add(fileButton);
+        add(footer, BorderLayout.SOUTH);
+        add(header, BorderLayout.NORTH);
         footer.add(playButton);
         footer.add(pauseButton);
         footer.add(stopButton);
@@ -73,8 +78,7 @@ public class PortaPlayer extends JFrame implements ActionListener {
             pauseSong();
         } else if(e.getSource() == stopButton) {
             stopSong();
-        } else if(e.getSource() == submitButton) {
-            closeClip();
+        } else if(e.getSource() == fileButton) {
             submitPath();
         }
     }
@@ -87,12 +91,23 @@ public class PortaPlayer extends JFrame implements ActionListener {
 
     private void submitPath() {
         try {
-            File song = new File(textField.getText());
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(song);
-            clip = AudioSystem.getClip();
-            clip.open(audioStream);
-            playButton.setEnabled(true);
-            stopButton.setEnabled(true);
+            JFileChooser fileChooser = new JFileChooser();
+
+            int response = fileChooser.showOpenDialog(null);
+
+            if(response == JFileChooser.APPROVE_OPTION) {
+                closeClip();
+                File song = new File(fileChooser.getSelectedFile().getAbsolutePath());
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(song);
+                clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                audioName.setText("Playing: " + fileChooser.getSelectedFile().getName());
+
+                playButton.setEnabled(true);
+                pauseButton.setEnabled(false);
+                stopButton.setEnabled(true);
+            }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Ops... The system cannot find the specified path :(", "Erro", JOptionPane.WARNING_MESSAGE);
         } catch (LineUnavailableException e) {
@@ -108,7 +123,7 @@ public class PortaPlayer extends JFrame implements ActionListener {
         System.out.println("Stop");
         playButton.setEnabled(true);
         pauseButton.setEnabled(false);
-        submitButton.setEnabled(true);
+        fileButton.setEnabled(true);
     }
 
     private void playSong() {
