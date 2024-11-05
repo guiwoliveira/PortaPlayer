@@ -12,7 +12,7 @@ public class PortaPlayer extends JFrame implements ActionListener {
     private final JButton pauseButton;
     private final JButton stopButton;
     private final JButton fileButton;
-    private JLabel audioName = new JLabel("Audio name");
+    private final JLabel audioName = new JLabel("Audio name");
     private Clip clip;
 
     public PortaPlayer() {
