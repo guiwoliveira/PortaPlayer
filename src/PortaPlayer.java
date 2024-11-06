@@ -1,8 +1,12 @@
 import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -12,8 +16,10 @@ public class PortaPlayer extends JFrame implements ActionListener {
     private final JButton pauseButton;
     private final JButton stopButton;
     private final JButton fileButton;
-    private final JLabel audioName = new JLabel("Audio name");
+    private final JLabel audioNameLabel = new JLabel("Audio name");
+    private JSlider volumeSlider = new JSlider();
     private Clip clip;
+    private float audioVolume;
 
     public PortaPlayer() {
         // --------- Frame
@@ -24,44 +30,74 @@ public class PortaPlayer extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
 
         // --------- Label
-        audioName.setBounds(20, 0, 20, 20);
+        audioNameLabel.setBounds(20, 0, 20, 20);
+        audioNameLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+
+        JLabel volumeLabel = new JLabel("Volume");
+        volumeLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 
         // --------- Panel
-        JPanel footer = new JPanel();
-        footer.setPreferredSize(new Dimension(600, 100));
-        footer.setLayout(new GridLayout(1, 3, 10, 10));
-        footer.setBackground(Color.gray);
-
         JPanel header = new JPanel();
         header.setPreferredSize(new Dimension(600, 60));
         header.setLayout(new GridLayout(1, 2, 10, 10));
         header.setBackground(Color.lightGray);
 
+        JPanel centerPanel = new JPanel();
+        centerPanel.setPreferredSize(new Dimension(600, 100));
+        centerPanel.setLayout(new FlowLayout());
+
+        JPanel footer = new JPanel();
+        footer.setPreferredSize(new Dimension(600, 100));
+        footer.setLayout(new GridLayout(1, 3, 10, 10));
+        footer.setBackground(Color.lightGray);
+
+        // --------- Slider
+        volumeSlider = new JSlider();
+        volumeSlider.setMinimum(-80);
+        volumeSlider.setMaximum(0);
+        volumeChange();
+
         // --------- Buttons
+        // --------- Play
         playButton = new JButton("Play");
         playButton.setPreferredSize(new Dimension(50, 30));
         playButton.setFocusable(false);
+        playButton.setFont(new Font("Arial", Font.PLAIN, 20));
         playButton.setEnabled(false);
         playButton.addActionListener(this);
+
+        // --------- Pause
         pauseButton = new JButton("Pause");
         pauseButton.setPreferredSize(new Dimension(50, 30));
         pauseButton.setFocusable(false);
+        pauseButton.setFont(new Font("Arial", Font.PLAIN, 20));
         pauseButton.setEnabled(false);
         pauseButton.addActionListener(this);
+
+        // --------- Stop
         stopButton = new JButton("Stop");
         stopButton.setPreferredSize(new Dimension(50, 30));
         stopButton.setFocusable(false);
+        stopButton.setFont(new Font("Arial", Font.PLAIN, 20));
         stopButton.setEnabled(false);
         stopButton.addActionListener(this);
+
+        // --------- Choose file
         fileButton = new JButton("Choose file");
         fileButton.setFocusable(false);
+        fileButton.setFont(new Font("Arial", Font.PLAIN, 20));
         fileButton.addActionListener(this);
 
         // --------- Add
-        header.add(audioName);
-        header.add(fileButton);
-        add(footer, BorderLayout.SOUTH);
         add(header, BorderLayout.NORTH);
+        header.add(audioNameLabel);
+        header.add(fileButton);
+
+        add(centerPanel, BorderLayout.CENTER);
+        centerPanel.add(volumeLabel);
+        centerPanel.add(volumeSlider);
+
+        add(footer, BorderLayout.SOUTH);
         footer.add(playButton);
         footer.add(pauseButton);
         footer.add(stopButton);
@@ -83,6 +119,21 @@ public class PortaPlayer extends JFrame implements ActionListener {
         }
     }
 
+    private void volumeChange() {
+        volumeSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                audioVolume = volumeSlider.getValue();
+                System.out.println(audioVolume);
+
+                if(clip != null) {
+                    FloatControl fc = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    fc.setValue(audioVolume);
+                }
+            }
+        });
+    }
+
     private void closeClip() {
         if(clip != null) {
             clip.close();
@@ -101,11 +152,12 @@ public class PortaPlayer extends JFrame implements ActionListener {
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(song);
                 clip = AudioSystem.getClip();
                 clip.open(audioStream);
+                clip.start();
 
-                audioName.setText("Playing: " + fileChooser.getSelectedFile().getName());
+                audioNameLabel.setText("Playing: " + fileChooser.getSelectedFile().getName());
 
-                playButton.setEnabled(true);
-                pauseButton.setEnabled(false);
+                playButton.setEnabled(false);
+                pauseButton.setEnabled(true);
                 stopButton.setEnabled(true);
             }
         } catch (IOException ex) {
@@ -140,4 +192,3 @@ public class PortaPlayer extends JFrame implements ActionListener {
         pauseButton.setEnabled(false);
     }
 }
-
