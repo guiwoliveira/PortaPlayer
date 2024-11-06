@@ -16,7 +16,6 @@ public class PortaPlayer extends JFrame implements ActionListener {
     private final JButton fileButton;
 
     private final JLabel audioNameLabel = new JLabel("Audio name");
-    private JLabel playlistNameLabel;
     private final JSlider volumeSlider = new JSlider();
     private Clip clip;
 
@@ -101,10 +100,6 @@ public class PortaPlayer extends JFrame implements ActionListener {
         // --------- Add
         add(mainPanel, BorderLayout.WEST);
         add(playlistPanel, BorderLayout.EAST);
-
-        for(String s : audioPlaylist) {
-            playlistNameLabel = new JLabel(s);
-        }
 
         mainPanel.add(header, BorderLayout.NORTH);
         header.add(audioNameLabel);
