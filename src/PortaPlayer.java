@@ -5,8 +5,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -17,7 +15,7 @@ public class PortaPlayer extends JFrame implements ActionListener {
     private final JButton stopButton;
     private final JButton fileButton;
     private final JLabel audioNameLabel = new JLabel("Audio name");
-    private JSlider volumeSlider = new JSlider();
+    private final JSlider volumeSlider = new JSlider();
     private Clip clip;
     private float audioVolume;
 
@@ -52,7 +50,6 @@ public class PortaPlayer extends JFrame implements ActionListener {
         footer.setBackground(Color.lightGray);
 
         // --------- Slider
-        volumeSlider = new JSlider();
         volumeSlider.setMinimum(-80);
         volumeSlider.setMaximum(0);
         volumeChange();
